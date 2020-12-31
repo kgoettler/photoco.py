@@ -110,10 +110,10 @@ class Photocopy:
                 continue
             outdir = join(
                 self.dest,
+                ext,
                 srctime.strftime('%Y'),
                 srctime.strftime('%m'),
                 srctime.strftime('%d'),
-                ext,
             )
             if outdir not in files:
                 files[outdir] = [srcfile]
