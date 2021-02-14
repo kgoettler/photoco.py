@@ -9,17 +9,18 @@ computer and enforce a simple date-based folder structure. The folder structure
 looks like this:
 
 ```
-2020
-└── 11
-    ├── 21
-    │   ├── CR3
-    │   └── JPG
-    ├── 26
-    │   ├── CR3
-    │   └── JPG
-    └── 27
-        ├── CR3
-        └── JPG 
+CR3
+└── 2020
+    └── 11
+        ├── 21
+        ├── 26
+        └── 27
+JPG
+└── 2020
+    └── 11
+        ├── 21
+        ├── 26
+        └── 27
 ```
 
 ## Dependencies
