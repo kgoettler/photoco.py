@@ -43,14 +43,14 @@ class Photocopy:
             default=None,
         )
         self.parser.add_argument(
-            '--start-date',
+            '--date-start',
             type=strtodate,
             help='Start date',
             required=False,
             default=None,
         )
         self.parser.add_argument(
-            '--end-date',
+            '--date-end',
             type=strtodate,
             help='End date',
             required=False,
@@ -104,9 +104,9 @@ class Photocopy:
                 continue
             if (self.end_index is not None) and (srcnum > self.end_index):
                 continue
-            if (self.start_date is not None) and (self.start_date > srctime):
+            if (self.date_start is not None) and (self.date_start > srctime):
                 continue
-            if (self.end_date is not None) and (self.end_date < srctime):
+            if (self.date_end is not None) and (self.date_end < srctime):
                 continue
             outdir = join(
                 self.dest,
