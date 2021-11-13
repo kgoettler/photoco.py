@@ -8,6 +8,9 @@ import re
 import subprocess
 import tempfile
 
+import exiftool
+from tqdm import tqdm
+
 class Photocopy:
 
     def __init__(self):
@@ -88,8 +91,12 @@ class Photocopy:
         Each key is a destination directory, each value is a list of files to
         copy into that directory.
         '''
+        # Start exiftool
+        et = exiftool.ExifTool()
+        et.start()
+
         files = {}
-        for srcfile in os.listdir(self.source):
+        for srcfile in tqdm(os.listdir(self.source), desc='Scanning image files'):
             # Parse filename
             m = re.match('IMG_(\d+)\.(\w+)', srcfile)
             if m is None:
@@ -97,7 +104,10 @@ class Photocopy:
             srcnum, ext = m.groups()
             srcnum = int(srcnum)
             srcpath = join(self.source, srcfile)
-            srctime = datetime.fromtimestamp(getmtime(srcpath))
+            #srctime = datetime.fromtimestamp(getmtime(srcpath))
+            # Read datetime using exiftool
+            srctime = et.get_metadata(srcpath).get('EXIF:DateTimeOriginal')
+            srctime = datetime.strptime(srctime, '%Y:%m:%d %H:%M:%S')
             # Skip if not in range of photos
             # or if not in date range
             if (self.start_index is not None) and (srcnum < self.start_index):
@@ -119,12 +129,14 @@ class Photocopy:
                 files[outdir] = [srcfile]
             else:
                 files[outdir].append(srcfile)
+        et.terminate()
         return files
     
     def copy(self):
         '''
         Perform copy
         '''
+        breakpoint()
         rsync_flags = '-ar'
         if self.dryrun:
             rsync_flags += 'n'
