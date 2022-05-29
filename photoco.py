@@ -93,7 +93,7 @@ class Photocopy:
         '''
         # Start exiftool
         et = exiftool.ExifTool()
-        et.start()
+        et.run()
 
         files = {}
         for srcfile in tqdm(os.listdir(self.source), desc='Scanning image files'):
@@ -106,7 +106,8 @@ class Photocopy:
             srcpath = join(self.source, srcfile)
             #srctime = datetime.fromtimestamp(getmtime(srcpath))
             # Read datetime using exiftool
-            srctime = et.get_metadata(srcpath).get('EXIF:DateTimeOriginal')
+            meta = et.execute_json(srcpath)
+            srctime = meta[0].get('EXIF:DateTimeOriginal')
             srctime = datetime.strptime(srctime, '%Y:%m:%d %H:%M:%S')
             # Skip if not in range of photos
             # or if not in date range
@@ -136,7 +137,7 @@ class Photocopy:
         '''
         Perform copy
         '''
-        breakpoint()
+        ti = datetime.now()
         rsync_flags = '-ar'
         if self.dryrun:
             rsync_flags += 'n'
@@ -159,6 +160,8 @@ class Photocopy:
             # Call
             subprocess.call(args)
             os.remove(files_from.name)
+        tf = datetime.now()
+        print('Runtime: {}'.format(str(tf - ti)))
         return
 
 def strtodate(x):
