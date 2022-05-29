@@ -84,6 +84,51 @@ class Photocopy:
                 'Destination: {}\n'.format(self.dest)
         return msg
 
+
+    def get_filelist_2(self):
+        pattern = 'IMG_(\d+)\.(\w+)'
+        files = [join(self.source, file) for file in os.listdir(self.source) if re.match(pattern, file)]
+        
+        ti = datetime.now()
+        filemap = {}
+        with exiftool.ExifToolHelper() as et:
+            metadata = et.get_metadata(files)
+            for meta in metadata:
+                srcfile = meta['SourceFile']
+                # Parse filename
+                m = re.match('IMG_(\d+)\.(\w+)', srcfile)
+                if m is None:
+                    continue
+                srcnum, ext = m.groups()
+                srcnum = int(srcnum)
+                srcpath = join(self.source, srcfile)
+                srctime = datetime.strptime(meta['EXIF:DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')
+                # Skip if not in range of photos
+                # or if not in date range
+                if (self.start_index is not None) and (srcnum < self.start_index):
+                    continue
+                if (self.end_index is not None) and (srcnum > self.end_index):
+                    continue
+                if (self.date_start is not None) and (self.date_start > srctime):
+                    continue
+                if (self.date_end is not None) and (self.date_end < srctime):
+                    continue
+                outdir = join(
+                    self.dest,
+                    ext,
+                    srctime.strftime('%Y'),
+                    srctime.strftime('%m'),
+                    srctime.strftime('%d'),
+                )
+                if outdir not in filemap:
+                    filemap[outdir] = [srcfile]
+                else:
+                    filemap[outdir].append(srcfile)
+        tf = datetime.now()
+        print('Runtime: {}'.format(str(tf - ti)))
+        return filemap
+
+
     def get_filelist(self):
         '''
         Build a dict of files to sync. 
